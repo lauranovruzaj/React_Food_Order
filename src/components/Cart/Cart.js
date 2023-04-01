@@ -1,31 +1,37 @@
-import React, { useContext, useState } from "react";
-import CartContext from "../../store/cart-context";
+import React, {  useState } from "react";
 import Modal from "../UI/Modal";
 
 import classes from "./Cart.module.css";
 import CartItem from "./CartItem";
 import Checkout from "./Checkout";
 
+import {  useSelector, useDispatch } from "react-redux";
+import { cartActions } from "../../store/redux/cart";
+
 const Cart = (props) => {
+
+  const dispatch = useDispatch();
+  const items = useSelector((state) => state.cart.items);
+  const cartAmount = useSelector((state)=> state.cart.totalAmount);
+
   const [isCheckout, setIsCheckout] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [didSubmit, setdidSubmit] = useState(false);
-  const cartCtx = useContext(CartContext);
 
-  const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
-  const hasItems = cartCtx.items.length > 0;
+  const totalAmount = `$${cartAmount.toFixed(2)}`;
+  const hasItems = items.length > 0;
 
   const cartItemRemoveHandler = (id) => {
-    cartCtx.removeItem(id);
+    dispatch(cartActions.remove(id))
   };
 
   const cartItemAddHandler = (item) => {
-    cartCtx.addItem({ ...item, amount: 1 });
+    dispatch(cartActions.add(item))
   };
 
   const cartItems = (
     <ul className={classes["cart-items"]}>
-      {cartCtx.items.map((item) => (
+      {items.map((item) => (
         <CartItem
           key={item.id}
           name={item.name}
@@ -50,13 +56,13 @@ const Cart = (props) => {
         method: "POST",
         body: JSON.stringify({
           user: userData,
-          orderedItems: cartCtx.items,
+          orderedItems: items,
         }),
       }
     );
     setIsSubmitting(false);
     setdidSubmit(true);
-    cartCtx.clearCart();
+    dispatch(cartActions.clear())
   };
 
   const cartModalContent = (
