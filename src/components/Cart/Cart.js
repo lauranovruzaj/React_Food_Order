@@ -26,7 +26,8 @@ const Cart = (props) => {
   };
 
   const cartItemAddHandler = (item) => {
-    dispatch(cartActions.add(item))
+    console.log(item)
+    dispatch(cartActions.add({...item, amount: 1}))
   };
 
   const cartItems = (
